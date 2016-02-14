@@ -1,0 +1,101 @@
+    DrawFrame(hdcSwitch,
+              &rcTemp,
+              2,
+              DF_PATCOPY | ((fShow ? COLOR_HIGHLIGHT : COLOR_3DFACE) << 3));
+			  COLOR_HIGHLIGHT =13 = 0xD
+			  COLOR_3DFACE=15=0xF
+.text:BF8E89C1 39 7D 18                                cmp     [ebp+fshow], edi
+.text:BF8E89C4 89 8D C8 FD FF FF                       mov     [ebp+var_238], ecx
+.text:BF8E89CA 0F 94 C0                                setz    al
+.text:BF8E89CD 8D 44 00 0D                             lea     eax, [eax+eax+0Dh]
+.text:BF8E89D1 C1 E0 03                                shl     eax, 3
+.text:BF8E89D4 50                                      push    eax
+.text:BF8E89D5 6A 02                                   push    2
+.text:BF8E89D7 8D 85 BC FD FF FF                       lea     eax, [ebp+var_244]
+.text:BF8E89DD 50                                      push    eax
+.text:BF8E89DE 53                                      push    ebx
+.text:BF8E89DF E8 FF 7E FC FF                          call    DrawFrame
+
+HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager
+PendingFileRenameOperations
+
+xpwin32k.sys
+
+\??\c:\temp\xpwin32k.sys
+!\??\c:\windows\system32\win32k.sys
+
+
+
+AllowProtectedRenames
+
+
+.BF8EADDF: 33C0                           xor          eax,eax
+.BF8EADE1: 898DC0FDFFFF                   mov          [ebp][-000000240],ecx
+.BF8EADE7: 83C12B                         add          ecx,02B ;'+'
+.BF8EADEA: 397D18                         cmp          [ebp][018],edi
+.BF8EADED: 898DC8FDFFFF                   mov          [ebp][-000000238],ecx
+.BF8EADF3: 0F94C0                         setz         al
+.BF8EADF6: 8D44400D                       lea          eax,[eax][eax]*2[00D]
+.BF8EADFA: C1E003                         shl          eax,3
+.BF8EADFD: 50                             push         eax
+.BF8EADFE: 6A02                           push         2
+.BF8EAE00: 8D85BCFDFFFF                   lea          eax,[ebp][-000000244]
+.BF8EAE06: 50                             push         eax
+.BF8EAE07: 53                             push         ebx
+.BF8EAE08: E8526BF7FF                     call        .0BF86195F --?3
+.BF8EAE0D: 397D18                         cmp          [ebp][018],edi
+.BF8EAE10: 0F842D010000                   jz          .0BF8EAF43 --?4
+.BF8EAE16: A138DF9ABF                     mov          eax,[0BF9ADF38] --?5
+.BF8EAE1B: 89BDE4FDFFFF                   mov          [ebp][-00000021C],edi
+.BF8EAE21: FFB0E8070000                   push         d,[eax][0000007E8]
+.BF8EAE27: 53                             push         ebx
+.BF8EAE28: E8C82BF2FF                     call        .0BF80D9F5 --?6
+
+change to:
+.BF8EADEA: 397D18                         cmp          [ebp][018],edi
+.BF8EADED: 898DC8FDFFFF                   mov          [ebp][-000000238],ecx
+.BF8EADF3: 0F95C0                         setnz        al
+.BF8EADF6: 8D44400F                       lea          eax,[eax][eax]*2[00F]
+.BF8EADFA: C1E003                         shl          eax,3
+.BF8EADFD: 50                             push         eax
+.BF8EADFE: 6A02                           push         2
+.BF8EAE00: 8D85BCFDFFFF                   lea          eax,[ebp][-000000244]
+
+---------------------------------------------------------------------------
+64bit
+    DrawFrame(hdcSwitch,
+              &rcTemp,
+              2,
+              DF_PATCOPY | ((fShow ? COLOR_HIGHLIGHT : COLOR_3DFACE) << 3));
+			  COLOR_HIGHLIGHT =13 = 0xD
+			  COLOR_3DFACE=15=0xF
+.text:FFFFF97FFF110BD5 6B DB 2B               imul    ebx, 2Bh
+.text:FFFFF97FFF110BD8 6B F6 2B               imul    esi, 2Bh
+.text:FFFFF97FFF110BDB 48 8D 54 24 40         lea     rdx, [rsp+2F8h+var_2B8]
+.text:FFFFF97FFF110BE0 41 03 5C 24 54         add     ebx, [r12+54h]
+.text:FFFFF97FFF110BE5 41 03 74 24 58         add     esi, [r12+58h]
+.text:FFFFF97FFF110BEA 41 B8 02 00 00 00      mov     r8d, 2
+.text:FFFFF97FFF110BF0 8D 43 2B               lea     eax, [rbx+2Bh]
+.text:FFFFF97FFF110BF3 89 5C 24 40            mov     dword ptr [rsp+2F8h+var_2B8], ebx
+.text:FFFFF97FFF110BF7 8B 9C 24 20 03 00 00   mov     ebx, [rsp+2F8h+arg_20]
+.text:FFFFF97FFF110BFE 89 44 24 48            mov     [rsp+2F8h+var_2B0], eax
+.text:FFFFF97FFF110C02 8D 46 2B               lea     eax, [rsi+2Bh]
+.text:FFFFF97FFF110C05 48 8B CF               mov     rcx, rdi        ; HDC
+.text:FFFFF97FFF110C08 89 44 24 4C            mov     [rsp+2F8h+var_2AC], eax
+.text:FFFFF97FFF110C0C 8B C3                  mov     eax, ebx
+.text:FFFFF97FFF110C0E 89 74 24 44            mov     dword ptr [rsp+2F8h+var_2B8+4], esi
+.text:FFFFF97FFF110C12 F7 D8                  neg     eax
+.text:FFFFF97FFF110C14 45 1B C9               sbb     r9d, r9d
+.text:FFFFF97FFF110C17 41 83 E1 FE            and     r9d, 0FFFFFFFEh
+.text:FFFFF97FFF110C1B 41 83 C1 0F            add     r9d, 0Fh
+.text:FFFFF97FFF110C1F 41 C1 E1 03            shl     r9d, 3
+.text:FFFFF97FFF110C23 E8 B8 C2 05 00         call    DrawFrame
+params in function order RCX, RDX, R8, R9
+
+change to
+.FFFFF97F`FF110C12: F7D8                           neg          eax
+.FFFFF97F`FF110C14: 451BC9                         sbb          r9d,r9d
+.FFFFF97F`FF110C17: 90909090                       nop
+.FFFFF97F`FF110C1B: 4183C10F                       add          r9d,00F
+.FFFFF97F`FF110C1F: 41C1E103                       shl          r9d,3
+.FFFFF97F`FF110C23: E8B8C20500                     call        .FFFFF97F`FF16CEE0 --↓4
