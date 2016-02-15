@@ -1,0 +1,5 @@
+focus follow mouse but no auto raise
+[HKEY_CURRENT_USER\Control Panel\Desktop]
+"ActiveWndTrkTimeout"=dword:000000fa
+"ActiveWndTrackTimeout"=dword:00000000
+"UserPreferencesMask"=hex:91,12,01,80,10,00,00,00
