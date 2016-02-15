@@ -99,3 +99,13 @@ change to
 .FFFFF97F`FF110C1B: 4183C10F                       add          r9d,00F
 .FFFFF97F`FF110C1F: 41C1E103                       shl          r9d,3
 .FFFFF97F`FF110C23: E8B8C20500                     call        .FFFFF97F`FF16CEE0 --↓4
+
+
+
+
+https://msdn.microsoft.com/en-us/library/windows/hardware/dn741535%28v=vs.85%29.aspx
+
+makecert -r -pe -ss PrivateCertStore -n CN=WIN32KTEST WIN32KTEST.CER
+signtool sign  /v  /s  PrivateCertStore  /n  WIN32KTEST  /t http://timestamp.verisign.com/scripts/timestamp.dll   win32k.sys
+bcdedit  /set  testsigning  on
+signtool  verify  /v  /kp  win32k.sys
