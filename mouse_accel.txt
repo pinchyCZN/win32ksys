@@ -1,0 +1,360 @@
+
+
+New HW thread
+Forums > Hardware Forum
+Tutorial: how to customize Windows accel (103 comments)
+( Forum: HW)
+Posted by hoppan @ 00:16 BST, 21 August 2010 - iMsg
+**
+30.11.2013:
+Thanks to an Anonymous user ( #pid2518654 ), an error in the Windows 7 V(Pointer) formula was found. The factors in the division weren't upside down as originally hypothesized. This does not however affect any of the actual math done in this tutorial, as the correct formula (by accident?) was used there. The formula is now corrected.
+
+If you are looking to customize Windows's enhanced pointer precision feature, I suggest looking at bologna's CUSTOM MOUSE ACCEL PROGRAM FOR WINDOWS, and this tutorial can serve as a theoretical background for those interested.
+
+For other accel needs, I highly recommend povohat's moufiltr , which gives you QL like accel with on-the-fly easy-to-use settings editor.
+
+**
+27.02.2012:
+A new place for the files is set up:
+http://www.kotiposti.net/jukkhop/WinAccel
+**
+
+
+Tutorial: how to customize the 'enhanced pointer precision' feature in Windows
+
+
+This tutorial applies to all Windowses from XP up to Win 7. The way 'enhanced pointer precision' works in XP and Vista is a bit flawed, but in Win 7 the behaviour is finally corrected. This is further examined in the 3. chapter.
+
+
+
+
+
+Content
+
+1. First words
+2. How the data from the mouse is converted into pointer movement
+3. How the 'enhanced pointer precision' actually works
+4. How to make a customized accel curve
+5. Things to keep in mind when making a custom accel curve
+6. Ending words
+7. Sources
+
+
+
+1. First words
+
+I think that mouse acceleration is an overlooked feature. The engineers at Microsoft did a good job in designing the enhanced pointer precision. Without the mouse data being altered in any way, the speed of the pointer is too high for any pixel-precise work but at the same time too low for effective navigation. No matter what the mouse DPI, with only the slider that scales the pointer speed linearly, users would have been forced to make an aforementioned compromise.
+
+As a solution MS developed a transfer curve, in which slow mouse movement would result in even slower pointer movement, "subpixilation", which allows every pixel to be pointed with ease. Simultaneously, as the mouse speed increases, the pointer speed would also increase according to the curve. For this reason the feature is called 'enhanced pointer precision' and not just 'mouse acceleration'.
+
+However, MS did wrong by not giving users a proper method to customize the curve according to different systems, settings and preferences. That's why mouse acceleration, for the first time called 'enhanced pointer precision' and implemented in XP, was by many users seen as unconvenient. Once again, design and implementation were on spot, but the feature was released with insufficient default settings and without a proper way to change them.
+
+There is little information about the subject on the net. There is the MS article, which was used as a basis (with slight understanding) for the famous "CPL mousefix", supposed to neutralize the effect of the 'enhanced pointer precision' in games that by accident forced it on even if it was disabled on the desktop (complete and 100% working fixes have since then been released by cheese for XP and by MarkC for Win7). Then there are only a few forum conversations and a Japanese web site that offers even more aggressive curves than the default one. There is no tutorial on how to totally customize the acceleration curve, so I decided to make one myself and deliver it in an easy-to-follow style.
+
+If you're not interested in the theoretical side of things, skip the next 2 chapters, but I suggest you don't because they can be valuable in making a custom curve.
+
+
+2. How mouse movement is converted to pointer movement
+
+The mouse and the pointer operate by using virtual units, or counts. If the mouse sends data that it has been moved f.e. one unit to the right, without the enhanced pointer precision and the pointer speed slider at 6/11 (= no scaling) the pointer will also move one unit to the right. This could be called as "one-to-one" or 100% speed. Lower speeds (subpixelation) is achieved by delaying the pointer movement until the mouse has sent enough units to the given direction. At 50% speed (scaling multiplier 0.5, pointer speed slider at 4/11), the mouse has to send 2 counts to the right before the pointer moves one count. Here's a list of the effective scaling multipliers for each pointer speed slider setting:
+
+Position Multiplier
+1 = 0.03125
+2 = 0.0625
+3 = 0.25
+4 = 0.5
+5 = 0.75
+6 = 1
+7 = 1.5
+8 = 2
+9 = 2.5
+10 = 3
+11 = 3.5
+
+
+Note: the resolution of the pointing device is also known as the mouse DPI and it describes how many counts the mouse is able to send when it is physically moved one inch. A 800 DPI mouse at a 0.5 scaling multiplier behaves similarly to a 400 DPI mouse at 1.0 multiplier.
+
+
+3. How the 'enhanced pointer precision' works
+
+The acceleration curve in Windows is a function, where the physical velocity of the pointer - V(pointer) - is plotted against the physical velocity of mouse V(mouse). Because the mouse and the pointer operate by using virtual units, they have to be first converted to physical units.
+
+The physical velocity of the mouse is calculated from the counts it sends by using the following formula:
+
+V(mouse) = count * mouse update rate / resolution of the pointing device (mouse DPI)
+
+Windows cant however retrieve the mouse update rate or the mouse DPI and cant tell if they change. A hard-coded value of ~0.286 (1/3.5) is used for the division. In other words, when converting the physical velocity of the mouse to virtual velocity, counts, one must multiply it by 3.5.
+
+Here's the interesting part. Windows XP and Vista use the following formula to calculate the physical velocity of the pointer:
+
+V(pointer) = count * screen refresh rate / screen resolution (DPI)
+
+Both factors in the division are variables. The division is however incorrect, because the pointer speed is dependent on the screen refresh rate, which it should not be. The physical velocity of the pointer is converted to virtual units by dividing it by 96/x, where x is the used screen refresh rate.
+
+Instead of screen refresh rate, the mouse update rate should have been used in this division too. So the formula should be:
+
+V(pointer) = count * mouse update rate / screen resolution (DPI)
+
+This is the correct formula that Windows 7 uses. The screen resolution is also 96 in Win 7 by default. Only a higher screen DPI results in higher mouse velocity, which is desirable behaviour. The actual mouse update rate still isn't retrieved, a hard-coded value of 150 is used. MarkC thinks that this is because MS wanted to keep the pointer behaviour as similar to XP/Vista as possible (even though the formula was now corrected). MS had a simple equation to solve:
+
+60/96 = 96/x
+0.625 = 96/x
+0.625x = 96
+x = 96/0.625
+x = 153.6
+
+(Still, MarkC thinks that) MS rounded rounded 153.6 to 150. Anyway fact is, 150 is the hard-coded value. This results in 2,4% faster pointer speed in Win7 compared to XP/Vista (with both on default settings): (96/150)/(60/96) = 1,024 = 102.4%. The difference is larger though when using anything else than 60Hz on XP or when using a different screen dpi.
+
+The physical velocity of the pointer is converted to virtual units by dividing by 150/x, where x is the used screen resolution (96 DPI, or 100% by default)
+
+Now we understand how the virtual units are calculated and converted. Let's go on to the acceleration curve (or function), which MS has portrayed in the graph below:
+
+http://www.microsoft.com/whdc/images/device/mousePointer.gif
+
+A zoomed view of the critical area:
+http://www.microsoft.com/whdc/images/device/pointer3.gif
+
+I won't go in deep details in how the function works, because the Microsoft's article already covers them: http://www.microsoft.com/whdc/archive/pointer-bal.mspx
+
+What interests us are the five points that can be seen in the graphs. These five coordinate pairs, or inflection points which form the acceleration curve are stored in the registry. These registy keys are named SmoothMouseYCurve and SmoothMouseXCurve, and can be modified. The first inflection point is always (0, 0). The curve is linearly extrapolated beyond the last inflection point, which is to happen rarely as the physical velocity of the mouse has to be over 40 inches per second.
+
+The inflection points are stored by using fixed-point (16.16) integer math. No worries though, to make a custom curve you don't need to understand how the coordinates are converted.
+
+Note that when using 'enhanced pointer precision' the scaling multipliers of the pointer speed slider are no longer valid, instead they are:
+
+Position Multiplier
+1 = 0.1
+2 = 0.2
+3 = 0.4
+4 = 0.6
+5 = 0.8
+6 = 1.0
+7 = 1.2
+8 = 1.4
+9 = 1.6
+10 = 1.8
+11 = 2.0
+
+The multiplier is applied right before the pointer is moved a given amount of counts, practically meaning that lower speeds than the default 6/11 result in lower acceleration curve and higher speeds result in higher acceleration. This isn't enough for us, though, as we want complete control over the curve.
+
+
+4. How to make a customized acceleration curve
+
+Down to the point. As mentioned, five x- and y-values (coordinates) are stored in the registry keys SmoothMouseXCurve and SmoothMouseYCurve. Use of the registry editor isn't required though. Remember:
+
+- these are coordinates of the function where physical velocities of the mouse and the pointer are used, not arbitrary units that they actually operate with
+
+- the physical velocities are calculated by using certain formulas
+
+- the formulas have hard-coded defaults for some factors, so the calculated physical velocities aren't exactly the real physical velocities
+
+- in XP/Vista, the formula for the physical velocity of the pointer is flawed, scaling should be done according to the used refresh rate
+
+- decimal figures converted to 16.16 fixed-point format are again converted to hexadecimal, the format which the registry understands
+
+
+Here's a snippet of text that has the default values for SmoothMouseXCurve and SmoothMouseYCurve. They are by default the same in XP/Vista and 7.
+
+    Windows Registry Editor Version 5.00
+
+    [HKEY_CURRENT_USER\Control Panel\Mouse]
+    "SmoothMouseXCurve"=hex:\
+    00,00,00,00,00,00,00,00,\
+    15,6e,00,00,00,00,00,00,\
+    00,40,01,00,00,00,00,00,\
+    29,dc,03,00,00,00,00,00,\
+    00,00,28,00,00,00,00,00
+
+    "SmoothMouseYCurve"=hex:\
+    00,00,00,00,00,00,00,00,\
+    b8,5e,01,00,00,00,00,00,\
+    cd,4c,05,00,00,00,00,00,\
+    cd,4c,18,00,00,00,00,00,\
+    00,00,38,02,00,00,00,00
+
+
+
+Copy the above text and paste it in an empty text document (notepad) and save it as a file with .reg in the end. From a practical point of view it makes sense to name the file as "WindowsDefault.reg" and later on work with copies taken from this file, so you can go easily go back to default if you want to. If you were successful, the icon of the registry file should look like this:
+
+http://www.tek911.com/reg-icon.gif
+
+Now when you double click the file (on desktop or the directory you saved it to), the values it includes are automatically written to the defined registry keys (SmoothMouseXCurve and SmoothMouseYCurve) in the defined registry path (HKEY_CURRENT_USER\Control Panel\Mouse). A pop-up window will appear and in case asks if you want to data in the file to be written in the registry. The file can be easily viewed in text editor by clicking the file with the right mouse button and selecting 'Edit' in the drop menu.
+
+Below are the default values converted to decimal figures respectively:
+
+SmoothMouseXCurve
+00,00,00,00,00,00,00,00, <-- 0
+15,6e,00,00,00,00,00,00, <-- 0.43001
+00,40,01,00,00,00,00,00, <-- 1.25
+29,dc,03,00,00,00,00,00, <-- 3.86001
+00,00,28,00,00,00,00,00 <-- 40
+
+SmoothMouseYCurve
+00,00,00,00,00,00,00,00, <-- 0
+b8,5e,01,00,00,00,00,00, <-- 1.37
+cd,4c,05,00,00,00,00,00, <-- 5.30001
+cd,4c,18,00,00,00,00,00, <-- 24.30001
+00,00,38,02,00,00,00,00 <-- 568
+
+
+I will explain how the conversion is done later. Let's connect the coordinates to make pairs.
+
+For user convenience, these comment lines should be pasted to the end of the registry file:
+
+// Default inflection points and the corresponding gain factors
+//
+// (0, 0)
+// (0.43001, 1.37) = 3.19
+// (1.25, 5.30001) = 4.24
+// (3.86001, 24.30001) = 6.30
+// (40, 568) = 14.2
+
+
+Gain factor is the slope that is apparent at each inflection point. The gain factor is calculated V(pointer) / V(mouse), for example 1.37 / 0.43001 = 3.19. Because the physical velocity of the pointer (on y-axis) is plotted against the physical velocity of the mouse (on x-axis), the gain factor, in theory, describes how many times faster the pointer moves on the screen than the mouse moves on the pad. Also in theory, a fixed gain factor of 1 would mean that the pointer and the mouse are moving equally fast. This doesn't however mean that one virtual count sent by the mouse would equal to pointer movement of one virtual unit. How big of a gain factor that results in the aforementioned scenario is important when making a custom curve. It can be calculated by using the formulas addressed in the 3. chapter of this tutorial:
+
+
+- first we convert 1 inches per second (physical mouse velocity) to virtual counts:
+
+1 * 3.5 = 3.5
+
+- then we calculate the physical velocity of the pointer that corresponds 3.5 virtual counts, which is to indicate how big of a gain factor results in virtual one-to-one ratio
+
+
+XP/Vista method
+
+3.5 * 96/x (where x = the used screen refresh rate)
+
+For example:
+3.5 * 96/60 = 5.6
+3.5 * 96/75 = 4.48
+3.5 * 96/85 ~ 3.95
+3.5 * 96/100 = 3.36
+
+It seems increasing the screen refresh rate always results in lower gain factor that corresponds virtual 1:1 ratio, or 100% speed. In other words when using enhanced pointer precision, higher refresh rate always results in faster pointer movement. This is not desirable. Thus, all 4 gain factors should be scaled accordingly if using anything above 60Hz. Below are the resulting virtual speed multipliers and percentual speeds at 60Hz. Here, a gain factor of 5.6 corresponds 100% virtual speed:
+
+// (0.43001, 1.37) = 3.19 (3.19 / 5.6 ~ 0.57 = 57%)
+// (1.25, 5.30001) = 4.24 (4.24 / 5.6 ~ 0.757 = 75,7%)
+// (3.86001, 24.30001) = 6.30 (6.30 / 5.6 ~ 1.125 = 112,5%)
+// (40, 568) = 14.2 (14.2 / 5.6 ~ 2.536 = 253,6%)
+
+
+If we wanted to retain the same curve for 75Hz, new gain factors would have to be scaled using the same multipliers. At 75Hz, 100% virtual speed corresponds a gain factor of 4.48 (which was calculated above).
+
+0.57 * 4.48 ~ 2.55
+0.757 * 4.48 ~ 3.39
+1.125 * 4.48 = 5.04
+2.536 * 4.48 ~ 11.36
+
+Now we'll calculate the corresponding y-coordinates using the new gain factors:
+
+0.43001 * 2.55 ~ 1,1
+1.2 * 3.39 ~ 4.07
+3.86001 * 5.04 ~ 19.45
+40 * 11.36 ~ 454.4
+
+
+Then insert the new gain factors and coordinates in the chart:
+
+// (0.43001, 1.1) = 2.55 (2.55 / 4.48 ~ 0.57 = 57%)
+// ((1.25, 4.07) = 3.39 (3.39 / 4.48 ~ 0.757 = 75,7%)
+// (3.86001, 19.45) = 5.04 (5.04 / 4.48 ~ 1.125 = 112,5%)
+// (40, 454.4) = 11.36 (11.36 / 4.48 ~ 2.536 = 253,6%)
+
+y-coordinates in the chart are now scaled for 75Hz. There are no variables in the formula for the physical velocity of the mouse, so x-coordinates don't need to be changed when making scaling due to refresh rate alteration. The figures in the chart are only to make the customization easier and to give a quick overlook of the curve. Windows 7 users don't need to make any manual scaling because - as mentioned in the 3. chapter - it uses a corrected formula for the pointer's physical velocity.
+
+To XP and Vista users I recommend making the scaling to the used refresh rate (if it's not 60) before further modifying the curve. To make things easier, here are the registry files where the default MS curve is already scaled for most common refresh rates.
+
+http://www.kotiposti.net/jukkhop/WinAccel/DefaultCurves.zip
+
+
+Windows 7 method
+
+- then we calculate the physical velocity of the pointer that corresponds 3.5 virtual counts
+
+3.5 * 150/x (where x is the screen resolution/DPI )
+
+3.5 * 150/96 ~ 5.47 (default 96)
+3.5 * 150/120 ~ 4.38 (120)
+3.5 * 150/144 ~ 3.65 (144)
+
+When increasing the screen resolution from the default 96DPI, a lower gain factor always corresponds the 100% virtual speed. So when using enhanced pointer precision in Win 7, the higher the screen resolution (or DPI), the faster the pointer moves. This is desirable behaviour.
+
+Below are the resulting virtual speed multipliers and percentual speeds at 96DPI. Here, a gain factor of 5.47 corresponds 100% virtual speed:
+
+// (0.43001, 1.37) = 3.19 (3.19 / 5.47 ~ 0.583 = 58,3%)
+// (1.25, 5.30001) = 4.24 (4.24 / 5.47 ~ 0.775 = 77,5%)
+// (3.86001, 24.30001) = 6.30 (6.30 / 5.47 ~ 1.152 = 115,2%)
+// (40, 568) = 14.2 (14.2 / 5.47 ~ 2.596 = 259,6%)
+
+By observing the figures we can see that the difference on default settings (60Hz on XP, 96DPI on 7) is negligible.
+
+
+Before I instruct on designing a custom accel curve, I'll tell how the coordinates (SmoothMouseX- and SmoothMouseYCurve values) can easily be modified
+
+You need:
+
+- a copy of WindowsDefault.reg (or one of the files I uploaded) open and ready to be modified
+- calculator (the Windows one is fine)
+- your browser open on this page: http://www.bytecraft.com/Fixed_Point_Converter
+
+To make things easier I recommend having the applications opened in a way that they aren't on top of each other.
+
+As an example, here we'll modify the y-coordinate of the 2. inflection point. In other words we are modifying the velocity at which the pointer physically moves (in theory at least) when the mouse is physically moved between 0 and 0.43 inches/sec. The default decimal value for the coordinate is 1.37. We can verify it in a way which is presented in this picture: http://www.kotiposti.net/jukkhop/WinAccel/tuto/screen2.JPG
+
+The picture itself also explains how the coordinates can be modified:
+
+- first insert the wanted decimal figure in the "fractional/accum value" field in Fixed Point Converter
+- then select 'fixed 16.16' as the input format (as it is demonstrated with the arrow)
+- insert the result given by the converter in the hexadecimal field (of the registry file) that corresponds the coordinate, 2 characters at a time in reverse order
+
+The converter gives only the first 4 number couples, but the last 4 couples are zeros anyway and aren't really needed here.
+
+
+5. Tips on designing your own accel curve
+
+There is no curve that will perfectly fit different devices, settings and preferences. Overall I think it's safe to say that the default curve is a bit aggressive. The gain factor at the last inflection point is a wild 14.2, which on default settings corresponds a 255% virtual speed. For the last inflection point I have experienced a virtual speed of 160-200% more natural, but this is only my perception.
+
+As a very general rule of thumb, the first three points should approximately be on the same line and equally distant from each other in the graph representing the curve. The gain factors of the first two inflection points converted to virtual speeds should be under 100% for the pointer to feel highly precise when moving the mouse slowly. Personally I feel optimum is 60% for the first and 80% for the second point. The third point should roughly be 100% (1:1 ratio). The farther the third point is placed on the x-axis, the longer the "normal" speed is preserved when the mouse is accelerated and the later the pointer starts to visibly accelerate.
+
+Note that the mouse DPI is directly proportional to how fast the pointer moves on the screen. When moved the same distance, a 800 DPI mouse sends twice the counts compared to a 400 DPI mouse. So the 800 DPI mouse is twice as fast. The higher the mouse DPI, the earlier the pointer moves 1 count and the harder it is to precisely manipulate and the greater the need for subpixelation. On the other hand, the smaller the DPI, the less efficient general navigation is and the greater the need for actual pointer acceleration. It could be concluded that there's a limit where higher DPI stops being useful.
+
+Important to know if you have higher mouse update rate than the default 125Hz: at 250Hz all the coordinates should be divided by 2 (250/125 = 2) and by 4 at 500Hz (500/125 = 4). This is because the higher the update rate, the faster the counts get sent. If a mouse sent a package of 4 counts at 125Hz, at 250Hz it would instead send two packets with 2 counts. Because the enhanced pointer precision uses a hard-coded number, a higher mouse update rate results in less calculated physical velocity even if in reality it was the same. I don't recommend using 1000Hz at all because it is unstable.
+
+However, bear in mind that the x-coordinate of the first point should never be under ~0.285, because when moving the mouse it can't send less than 1 count ( ~0.285 * 3.5 = 1). It if was under ~0.285, the first inflection point would always be skipped and useless.
+
+Would be good to keep in mind which gain factor corresponds 100% speed with your refresh rate on XP or Vista. Here are the default curve files scaled for the most common refresh rates again:
+
+http://www.kotiposti.net/jukkhop/WinAccel/DefaultCurves.zip
+
+The zip also contains the default one for Windows 7. The files contain comment lines which should prove helpful.
+
+If you would prefer a "blank canvas" type of start, you can scale all the inflection points to have exactly the same gain factor and work your way from there.
+
+New SmoothMouseYCurve/SmoothMouseXCurve values take effect when logging in and out of Windows, or at reboot.
+
+
+6. Ending words
+
+I would like to thank MarkC for his work on decoding the 'enhanced pointer precision' feature. I couldn't have written this tutorial without his efforts. In an optimal case, after getting your custom accel curve done the pointer movement feels more natural compared to before. So natural in fact that you don't feel anything special in the pointer behaviour. By now I can tell it is an addicting feeling.
+
+The good thing about having a customized 'enhanced pointer precision' is that you can have the same accel in all games that support Win32 mouse input.
+
+I don't want to take any credit from this tutorial because it was simply gathering bits and pieces from the net. Only thing I found out myself was how easy the numbers are to convert with the Fixed Point Converter. Sadly I'm not yet skilled enough to write a tool where the curve could be graphically adjusted and where the whole process was done automatically.
+
+
+7. Sources
+
+
+http://www.microsoft.com/whdc/archive/pointer-bal.mspx
+
+http://donewmouseaccel.blogspot.com/2009/06/o...ndows.html
+
+http://www.esreality.com/?a=post&id=1846538
+
+http://07.net/mouse/
+
+(english version)
+http://translate.google.com/translate?js=y&am...&tl=en
+Edited by hoppan at 22:04 GMT, 30 November 2013 - 47867 Hits
+27%
+
