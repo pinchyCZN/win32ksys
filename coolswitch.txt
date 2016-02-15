@@ -15,7 +15,7 @@
 .text:BF8E89DD 50                                      push    eax
 .text:BF8E89DE 53                                      push    ebx
 .text:BF8E89DF E8 FF 7E FC FF                          call    DrawFrame
-
+search 0F 94 C0 8D 44 00 0D C1 E0 03 50
 HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager
 PendingFileRenameOperations
 
@@ -90,6 +90,7 @@ change to:
 .text:FFFFF97FFF110C1B 41 83 C1 0F            add     r9d, 0Fh
 .text:FFFFF97FFF110C1F 41 C1 E1 03            shl     r9d, 3
 .text:FFFFF97FFF110C23 E8 B8 C2 05 00         call    DrawFrame
+search: F7 D8 45 1B C9 41 83 E1 FE 41 83 C1 0F
 params in function order RCX, RDX, R8, R9
 
 change to
