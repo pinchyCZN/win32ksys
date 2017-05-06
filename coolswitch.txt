@@ -17,16 +17,19 @@
 .text:BF8E89DF E8 FF 7E FC FF                          call    DrawFrame
 
 HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager
+
+REG_MULTI_SZ (as is as shown below on 2 lines in regedit)
 PendingFileRenameOperations
-
-xpwin32k.sys
-
 \??\c:\temp\xpwin32k.sys
 !\??\c:\windows\system32\win32k.sys
 
+REG_DWORD
+AllowProtectedRenames 1
 
 
-AllowProtectedRenames
+
+
+
 
 
 .BF8EADDF: 33C0                           xor          eax,eax
